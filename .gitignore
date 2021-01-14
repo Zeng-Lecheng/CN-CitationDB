@@ -2,23 +2,27 @@
 ### MicrosoftOffice template
 *.tmp
 
-# Word temporary
+# Word
 ~$*.doc*
+*.doc*
 
 # Word Auto Backup File
 Backup of *.doc*
 
-# Excel temporary
+# Excel
 ~$*.xls*
+*.xls*
 
 # Excel Backup File
 *.xlk
 
-# PowerPoint temporary
+# PowerPoint
 ~$*.ppt*
+*.ppt*
 
 # Visio autosave temporary files
 *.~vsd*
+*.vsd*
 
 ### Python template
 # Byte-compiled / optimized / DLL files
@@ -413,3 +417,7 @@ TSWLatexianTemp*
 # IDEs
 .idea/
 .vscode/
+
+*.pdf
+*.png
+*.jpg
