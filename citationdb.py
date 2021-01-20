@@ -127,6 +127,10 @@ class Db:
             logging.error(f'[add_title()]: {kwargs["name"]} already exists.')
             return
         title = db_node.Title(**kwargs)
+
+        for title_name in title.sub_title:
+            if title_name not in self.data['title']:
+                self.add_title(name=title_name)
         self.data['title'][kwargs['name']] = title.__dict__
 
     def add_title_redirect(self, name: str, target: str):
