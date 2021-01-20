@@ -29,16 +29,18 @@ class Db:
             logging.error(f'[add_author()]: {kwargs["name"]} already exists')
             return
         author = db_node.Author(**kwargs)
+        if author.redirect_target:
+            logging.error(f'[add_author()]: You are adding {author.name} as a redirect. '
+                          f'Use add_author_redirect() instead')
         self.data['author'][kwargs['name']] = author.__dict__
 
         # Possible alias
         name_split = re.split(r'-|\s+', author.name)
-        alias = [author.name.lower(), author.name.upper()]
-        alias.append('.'.join([s[0] for s in name_split[:-1]]) + '. ' + name_split[-1])  # A.B. Charlie
-        alias.append('. '.join([s[0] for s in name_split[:-1]]) + '. ' + name_split[-1])  # A. B. Charlie
-        alias.append(' '.join([s[0] for s in name_split[:-1]]) + ' ' + name_split[-1])  # A B Charlie
-        alias.append('-'.join(name_split[:-1]) + ' ' + name_split[-1])  # Alice-Bob Charlie
-        alias.append(name_split[-1] + ', ' + ' '.join(name_split[:-1]))
+        alias = [author.name.lower(), author.name.upper(),
+                 '.'.join([s[0] for s in name_split[:-1]]) + '. ' + name_split[-1],
+                 '. '.join([s[0] for s in name_split[:-1]]) + '. ' + name_split[-1],
+                 ' '.join([s[0] for s in name_split[:-1]]) + ' ' + name_split[-1],
+                 '-'.join(name_split[:-1]) + ' ' + name_split[-1], name_split[-1] + ', ' + ' '.join(name_split[:-1])]
         if re.search(r'[\u4e00-\u9fa5]', author.name):  # Chinese characters
             pinyin_list = lazy_pinyin(author.name)
             given_1 = ''.join(pinyin_list[:-1])
@@ -104,6 +106,17 @@ class Db:
             self.data['title'][title_name] = title.__dict__
         self.data['author'][new_author.name] = new_author.__dict__
 
+    def remove_author(self, name: str):
+        if name not in self.data['author']:
+            logging.error(f'[remove_author()]: {name} does not exist.')
+            return
+        author = db_node.Author(**self.data['author'][name])
+        for title_name in author.title:
+            title = db_node.Title(**self.data['title'][title_name])
+            title.author.remove(name)
+            self.data['title'][title_name] = title.__dict__
+        del self.data['author'][name]
+
     def add_title(self, **kwargs):
         if kwargs['name'] in self.data['title']:
             logging.error(f'[add_title()]: {kwargs["name"]} already exists.')
@@ -132,3 +145,18 @@ class Db:
 
     def write_db(self):
         json.dump(self.data, open(self.filename, 'w', encoding='utf-8'), indent=2, ensure_ascii=False)
+
+    def clean_up(self):
+        for name in list(self.data['author'].keys()):
+            data = self.data['author'][name]
+            author = db_node.Author(**data)
+            if author.redirect_target and author.redirect_target not in self.data['author']:
+                del self.data['author'][name]
+        for name in list(self.data['title'].keys()):
+            data = self.data['title'][name]
+            title = db_node.Title(**data)
+            if title.redirect_target and title.redirect_target not in self.data['title']:
+                del self.data['title'][name]
+            for sub_title_name in title.sub_title:
+                if sub_title_name not in self.data['title']:
+                    title.sub_title.remove(sub_title_name)

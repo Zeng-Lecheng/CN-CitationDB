@@ -1,5 +1,4 @@
-import json
-from db import Db
+from citationdb import Db
 
 
 database = Db('./db.json')
