@@ -39,9 +39,9 @@ class Db:
         alias = []
         if re.search(r'[\u4e00-\u9fa5]', author.name):  # Chinese characters
             pinyin_list = lazy_pinyin(author.name)
-            given_1 = ''.join(pinyin_list[:-1])
-            given_2 = '-'.join([f'{s[0].upper()}{s[1:]}' for s in pinyin_list[:-1]])
-            family = pinyin_list[-1]
+            given_1 = ''.join(pinyin_list[1:])
+            given_2 = '-'.join([f'{s[0].upper()}{s[1:]}' for s in pinyin_list[1:]])
+            family = pinyin_list[0]
             alias.append(f'{given_1[0].upper()}{given_1[1:]} {family[0].upper()}{family[1:]}')  # Hongmei Zhang
             alias.append(f'{given_1} {family}')  # hongmei zhang
             alias.append(f'{given_2} {family[0].upper()}{family[1:]}')  # Hong-Mei Zhang
