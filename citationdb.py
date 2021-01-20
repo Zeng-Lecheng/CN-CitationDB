@@ -36,11 +36,7 @@ class Db:
 
         # Possible alias
         name_split = re.split(r'-|\s+', author.name)
-        alias = [author.name.lower(), author.name.upper(),
-                 '.'.join([s[0] for s in name_split[:-1]]) + '. ' + name_split[-1],
-                 '. '.join([s[0] for s in name_split[:-1]]) + '. ' + name_split[-1],
-                 ' '.join([s[0] for s in name_split[:-1]]) + ' ' + name_split[-1],
-                 '-'.join(name_split[:-1]) + ' ' + name_split[-1], name_split[-1] + ', ' + ' '.join(name_split[:-1])]
+        alias = []
         if re.search(r'[\u4e00-\u9fa5]', author.name):  # Chinese characters
             pinyin_list = lazy_pinyin(author.name)
             given_1 = ''.join(pinyin_list[:-1])
@@ -50,9 +46,18 @@ class Db:
             alias.append(f'{given_1} {family}')  # hongmei zhang
             alias.append(f'{given_2} {family[0].upper()}{family[1:]}')  # Hong-Mei Zhang
             alias.append(f'{family[0].upper()}{family[1:]}, {given_1[0].upper()}{given_1[1:]}')
-        alias.remove(author.name)
+        else:
+            alias = [author.name.lower(), author.name.upper(),
+                     '.'.join([s[0] for s in name_split[:-1]]) + '. ' + name_split[-1],
+                     '. '.join([s[0] for s in name_split[:-1]]) + '. ' + name_split[-1],
+                     ' '.join([s[0] for s in name_split[:-1]]) + ' ' + name_split[-1],
+                     '-'.join(name_split[:-1]) + ' ' + name_split[-1],
+                     name_split[-1] + ', ' + ' '.join(name_split[:-1])]
+
         alias = list(set(alias))
         for item in alias:
+            if item == author.name:
+                continue
             self.add_author_redirect(item, author.name)
 
         # Check Titles
@@ -60,7 +65,7 @@ class Db:
             if item not in self.data['title']:
                 self.add_title(name=item)
             title = db_node.Title(**self.data['title'][item])
-            if title.redirect_target:
+            while title.redirect_target:
                 title = db_node.Title(**self.data['title'][title.redirect_target])
             title.author.append(author.name)
 
