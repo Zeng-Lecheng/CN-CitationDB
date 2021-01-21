@@ -90,15 +90,16 @@ class Db:
 
         self.data['author'][name] = redirect.__dict__
 
-    def edit_author(self, **kwargs):
-        if kwargs['name'] not in self.data['author']:
-            logging.error(f'[edit_author()]: Author {kwargs["name"]} does not exist. Use add_author() instead.')
+    def edit_author(self, name, **kwargs):
+        if name not in self.data['author']:
+            logging.error(f'[edit_author()]: Author {name} does not exist. Use add_author() instead.')
             return
         if kwargs.get('redirect_target', ''):
             logging.error(f'[edit_author()]: Set redirect with add_redirect() instead.')
             return
-        old_author = db_node.Author(**self.data['author'][kwargs['name']])
-        new_author = db_node.Author(**kwargs)
+        new_author = old_author = db_node.Author(**self.data['author'][name])
+        for key in kwargs:
+            exec(f'new_author.{key} = kwargs["{key}"]')
         removed_title = set(old_author.title) - set(new_author.title)
         added_title = set(new_author.title) - set(old_author.title)
         for title_name in removed_title:
