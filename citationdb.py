@@ -46,6 +46,8 @@ class Db:
             alias.append(f'{given_1} {family}')  # hongmei zhang
             alias.append(f'{given_2} {family[0].upper()}{family[1:]}')  # Hong-Mei Zhang
             alias.append(f'{family[0].upper()}{family[1:]}, {given_1[0].upper()}{given_1[1:]}')
+            alias.append(f'{given_1[0].upper()} {family[0].upper()}{family[1:]}')
+            alias.append(f'{given_1[0].upper()}. {family[0].upper()}{family[1:]}')
         else:
             alias = [author.name.lower(), author.name.upper(),
                      '.'.join([s[0] for s in name_split[:-1]]) + '. ' + name_split[-1],
