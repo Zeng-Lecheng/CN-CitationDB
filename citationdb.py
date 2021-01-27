@@ -99,7 +99,8 @@ class Db:
         if kwargs.get('redirect_target', ''):
             logging.error(f'[edit_author()]: Set redirect with add_redirect() instead.')
             return
-        new_author = old_author = db_node.Author(**self.data['author'][name])
+        old_author = db_node.Author(**self.data['author'][name])
+        new_author = db_node.Author(**self.data['author'][name])
         for key in kwargs:
             exec(f'new_author.{key} = kwargs["{key}"]')
         removed_title = set(old_author.title) - set(new_author.title)
@@ -109,7 +110,7 @@ class Db:
             title.author.remove(old_author.name)
             self.data['title'][title_name] = title.__dict__
         for title_name in added_title:
-            title = db_node.Title(**self.data['title'][title_name])
+            title = db_node.Title(**self.data['title'].get(title_name, {'name': title_name}))
             title.author.append(old_author.name)
             self.data['title'][title_name] = title.__dict__
         self.data['author'][new_author.name] = new_author.__dict__
