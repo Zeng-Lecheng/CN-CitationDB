@@ -99,6 +99,8 @@ class Db:
         if kwargs.get('redirect_target', ''):
             logging.error(f'[edit_author()]: Set redirect with add_redirect() instead.')
             return
+        while self.data['author'][name]['redirect_target']:
+            name = self.data['author'][name]['redirect_target']
         old_author = db_node.Author(**self.data['author'][name])
         new_author = db_node.Author(**self.data['author'][name])
         for key in kwargs:
