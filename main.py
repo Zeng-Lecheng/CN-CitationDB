@@ -1,8 +1,4 @@
-from citationdb import Db
-
-
-database = Db('./db.json')
-
+from citationdb import CitationDB
 
 if __name__ == '__main__':
-    database.write_db()
+    database = CitationDB()
